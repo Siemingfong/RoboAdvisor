@@ -1,0 +1,185 @@
+{% extends 'base.html' %}{% load static %} 
+
+
+{% block FB_T %}
+
+{% endblock %}
+
+{% block FB_K %}
+alert('Please Sign In with FB First.')
+window.location.replace('/dm_home/');
+{% endblock %}
+{% block FB_U %} 
+alert('Please Sign In with FB First.')
+window.location.replace('/dm_home/');
+{% endblock %}
+
+{% block HeadScript %}
+
+<link rel="stylesheet" type="text/css" href="{% static './custom/css/timeLineD3Annotation.css' %}">
+
+<style>
+    #news_table{
+        font-family: 'cwTeXHei', sans-serif !important;
+    }
+</style>
+<!-- Datatable -->
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/dataTables.semanticui.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.semanticui.min.css">
+<script>
+    var btc_news_data = '{% static "./custom/js/cliff.json" %}';
+    // Callback for creating the table
+
+    $(document)
+        .ready(function() {
+            // Data from json.file
+            var table = $('#news_table').DataTable({
+                "ajax": btc_news_data
+            });
+
+            ///////////////////////////////////////////////////////////////////////////////////////////
+            // show dropdown on hover
+            $('.main.menu  .ui.dropdown').dropdown({
+                on: 'hover'
+            });
+            $('.menu .item').tab();
+            $('.selection.dropdown').dropdown();
+
+            $(window).resize(function() {
+                    let seg_width = $('#segment_w').width();
+                    $('#lineChart').width(seg_width);
+                    responsive_clear();
+                    draw_price_chart(seg_width);
+                }
+            );
+
+            $('#dm_mark_method').change(function (){
+                let mark_list = cg_mark_data();
+                let seg_width = $('#segment_w').width();
+                console.log("dddddd",mark_list);
+                responsive_clear();
+                draw_price_chart(seg_width,mark_list);
+                
+            });
+        });
+</script>
+{% endblock %} {% block BodyContent %}
+<div class="ui one column doubling stackable grid container">
+    <div class="column">
+        <h2 class="ui header mf-header">BTC TimeLine</h2>
+        <div class="ui segment">
+            <label>TimeLine Tag Method</label>
+            <div class="ui selection dropdown">
+                <input type="hidden" id="dm_mark_method">
+                <i class="dropdown icon"></i>
+                <div class="default text">Methods</div>
+                <div class="menu">
+                    <div class="item " data-value="WhatACliff">WhatACliff</div>
+                    <div class="item " data-value="PriceHistoryLandmark">PriceHistoryLandmark</div>
+                </div>
+            </div>
+            <div class="ui segment" id="segment_w">
+                <svg id="lineChart" width=960 height=0></svg>
+            </div>
+        </div>
+
+
+        <h2 class="ui header mf-header">Analysis Ouput</h2>
+        <div class="ui attached segment" style="min-height:500px;">
+            <div class="ui top attached tabular menu">
+                <a class="active item dm-tab" data-tab="news_table">新聞</a>
+                <a class="item dm-tab" data-tab="news_analysis_graph">圖表</a>
+            </div>
+            <div class="ui active bottom attached tab segment" data-tab="news_table" style="height:800px;overflow-x: scroll;">
+                <div class="ui doubling stackable grid container">
+                        <div class="row">
+                            <div class="three wide column">
+                                <div class="ui form">
+                                    <h3>Select Date Range</h3>
+                                    <div class="field ui left icon input">
+                                        <input type="text" placeholder="Date From " id="min" name="min">
+                                        <i class="search icon"></i>
+                                    </div>
+                                    <div class="field ui left icon input">
+                                        <input type="text" placeholder="Date to" id="max" name="max">
+                                        <i class="search icon"></i>
+                                    </div>
+                                    <h3>Search Mark Date</h3>
+                                    <div class="field ui left icon input">
+                                        <input type="text" placeholder="Search MarkDate" id="position_v" name="position_v">
+                                        <i class="users icon"></i>
+                                    </div>
+                                    <h3>Select Office</h3>
+                                    <select class="ui dropdown" id="office_v" multiple="">
+                                    </select>
+                
+                                </div>
+                                <h3>Submit</h3>
+                                <button class="ui button" type="submit" id="filter_submit">Submit</button>
+                            </div>
+                            <div class="thirteen wide column">
+                                <table id="news_table" class="ui celled table" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>標記時間</th>
+                                            <th>標記編號</th>
+                                            <th>新聞日期</th>
+                                            <th>來源</th>
+                                            <th>標題</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>標記時間</th>
+                                            <th>標記編號</th>
+                                            <th>新聞日期</th>
+                                            <th>來源</th>
+                                            <th>標題</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="ui bottom attached tab segment" data-tab="news_analysis_graph" style="height:800px;overflow-x: scroll;">
+            </div>
+    </div>
+</div>
+
+<!-- D3 Annotationjs and d3js -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js' charset="utf-8"></script>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://cdn.rawgit.com/susielu/d3-annotation/75ff6169/d3-annotation.js"></script>
+<!-- <script src="{% static './custom/js/timeLineD3Annotation.js' %}"></script> -->
+<script src="{% static './custom/js/dev_timeline.js' %}"></script>
+<script>
+    var btc_tsv_data = '{% static "./custom/js/price_tsv.tsv" %}';
+    let mark_list = cg_mark_data();
+    // First draw
+    var seg_width = $('#segment_w').width();
+    draw_price_chart(seg_width, mark_list);
+
+    function responsive_clear() {
+        $('#segment_w').empty();
+    }
+
+    function draw_price_chart(seg_width, mark_list){
+        d3PriceLinefunction(seg_width, mark_list);
+    }
+    // Change the mark
+    function cg_mark_data() {
+        if ($('#dm_mark_method').val() == ""){
+            console.log('initialize');
+            $('#dm_mark_method').val("PriceHistoryLandmark");
+        }
+        if ($('#dm_mark_method').val() == "WhatACliff"){
+            var mark_list = {{ cliff_list|safe }} ;
+        } else if ($('#dm_mark_method').val() == "PriceHistoryLandmark"){
+            var mark_list = {{ landmark_list|safe }} ;
+        }
+        return mark_list
+    }
+</script>
+{% endblock %}

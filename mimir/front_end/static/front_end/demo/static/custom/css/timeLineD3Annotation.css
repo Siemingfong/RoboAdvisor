@@ -1,0 +1,86 @@
+:root {
+    --circle-color: #E8336D;
+    --path-color: #00adb5;
+    --annotationtext-color: #E8336D;
+    --axis-color: #b3abab;
+    --axis-text-color: black;
+}
+
+.subject-ring{
+    stroke-width: 1px
+}
+.chart__overlay {
+    opacity: 0;
+    pointer-events: all;
+}
+
+.chart__tooltip--price {
+    fill: none;
+    stroke: var(--circle-color);
+    stroke-width:1px;
+}
+
+.chart_price_x, .chart_price_y {
+    fill: none;
+    stroke: var(--circle-color);
+    stroke-width:1.5px;
+    stroke-dasharray:2;
+}
+
+svg {
+    background-color: #fff;
+    font-family: 'Orbitron', 'cwTeXHei', sans-serif !important;;
+}
+
+path.line {
+    fill: none;
+    stroke: var(--path-color);
+    stroke-width: 2.5px;
+}
+
+.annotation path {
+    stroke: var(--circle-color);
+    fill: none;
+}
+
+.annotation path.connector-arrow,
+.title text,
+.annotation text,
+.annotation.callout.circle .annotation-subject path {
+    fill: var(--annotationtext-color);
+}
+
+.annotation-note-bg {
+    fill: rgba(255, 255, 255, 0);
+}
+
+.annotation-note-title {
+    font-weight: bold;
+}
+
+.annotation.xythreshold {
+    cursor: move;
+}
+
+.hidden {
+    display: none;
+}
+
+text.hover {
+    font-size: .7em;
+}
+
+text.title {
+    font-size: 1.1em;
+}
+
+/* X,Y Axis Color */
+
+path.domain, .tick>line {
+    stroke: var(--axis-color);
+}
+
+.tick>text {
+    fill: var(--axis-text-color);
+}
+

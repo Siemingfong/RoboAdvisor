@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Standard Meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>{% block title %}most-fintech{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static './front_end/demo/static/favicon/favicon.png' %}" type="image/x-icon">
+    <!-- Semantic CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static './front_end/demo/static/semantic/css/icon.css'  %}">
+    <link rel="stylesheet" type="text/css" href="{% static './front_end/demo/static/semantic/css/semantic.css'  %}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static './front_end/demo/static/custom/css/base.css'  %}">
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <!-- intercooler.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intercooler-js/1.2.0/intercooler.min.js"></script>
+    <!-- Semantic JS -->
+    <script src="{% static './front_end/demo/static/semantic/js/semantic.js'  %}"></script>
+    <script>
+        $(document)
+            .ready(function() {
+                // fix main menu to page on passing
+                $('.main.menu').visibility({
+                    type: 'fixed'
+                });
+                $('.overlay').visibility({
+                    type: 'fixed',
+                    offset: 80
+                });
+
+                // lazy load images
+                $('.image').visibility({
+                    type: 'image',
+                    transition: 'vertical flip in',
+                    duration: 500
+                });
+
+                // show dropdown on hover
+                $('.main.menu  .ui.dropdown').dropdown({
+                    on: 'hover'
+                });
+
+                // Menu Icon-text position
+                $(window).on('resize', function() {
+                    var win = $(this);
+                    if (win.width() < 766) {
+                        $('.mf-icontext').removeClass('center').removeClass('aligned');
+                    } else {
+                        $('.mf-icontext').addClass('center').addClass('aligned');
+                    }
+                });
+                $(window).scroll(function() {
+                    if ($(document).scrollTop() != 0) {
+                        $('#main-menu, .mf-title').addClass('menu-change');
+                    } else {
+                        $('#main-menu, .mf-title').removeClass('menu-change');
+                    }
+                });
+                $('#sidebar-action').click(function() {
+                    $('.ui.sidebar')
+                        .sidebar('toggle');
+                })
+
+                $('#act-login-modal').click(function() {
+                    $('#login-modal')
+                        .modal({
+                            blurring: true
+                        }).modal('show');
+                });
+                $('#act-logout').click(function() {
+                    FB.logout(function(response) {
+                        alert('logout!');
+                        window.location.reload();
+                    });
+                });
+            });
+        // ////////////////////////////////////////////////////
+            
+        function statusChangeCallback(response) {
+            console.log('statusChangeCallback', response);
+
+            FB.getLoginStatus(function(response) {
+                if (response.status === 'connected') {
+                    console.log('response.status === connected')
+                    fb_userID = response.authResponse.userID
+                    fb_accessToken = response.authResponse.accessToken
+                    $.post("../dm_fb_check_user_state/", {
+                        'fb_userID': fb_userID,
+                        'fb_accessToken': fb_accessToken,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    }, function(data) {
+                        // if user new to db, than callback 
+                        console.log(data.server_state);
+                        if (data.server_state == 'new_user') {
+                            newUserInfoToDB(response);
+                        }
+                    });
+
+                    {% block FB_T %} {% endblock %}
+                    // menu-user-popup
+                    $('#menu-user-action')
+                        .popup({
+                            position: 'bottom center',
+                            popup: $('.login-status-o'),
+                            on: 'click'
+                        });
+                    // Logged into your app and Facebook.
+                } else if (response.status === 'not_authorized') {
+                    // The person is not logged into your app 
+                    console.log('response.status === not_authorized');
+                    document.getElementById('status').innerHTML = '您已登入FaceBook，是否以此帳號註冊此網站。';
+                    $('#menu-user-action')
+                        .popup({
+                            position: 'bottom center',
+                            popup: $('.login-status-x'),
+                            on: 'click'
+                        });
+                    {% block FB_K %} {% endblock %}
+                } else {
+                    // Unable to tell, might not logged in facebook, so no cookie or session in browser.
+                    document.getElementById('status').innerHTML = '請登入FaceBook。';
+                    $('#menu-user-action')
+                        .popup({
+                            position: 'bottom center',
+                            popup: $('.login-status-x'),
+                            on: 'click'
+                        });
+                    {% block FB_U %} {% endblock %}
+                }
+            })
+        }
+
+
+        function checkLoginState() {
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
+            });
+            window.location.reload();
+        }
+
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId: '1898778963720638',
+                cookie: true, // enable cookies to allow the server to access 
+                // the session
+                xfbml: true, // parse social plugins on this page
+                version: 'v2.8' // use graph api version 2.8
+            });
+
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
+            });
+
+        };
+
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = 'https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v2.11&appId=1898778963720638';
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        function newUserInfoToDB(response) {
+            // console.log('newUserInfoToDB', response);
+            FB.api('/me?fields=id, name, birthday, email, link, gender, age_range', function(response) {
+                var meObj = {
+                    'fb_user_id': response.id,
+                    'fb_user_name': response.name,
+                    'fb_user_email': response.email,
+                    'fb_user_link': response.link,
+                    'fb_user_age_range': response.age_range,
+                    'fb_user_gender': response.gender
+                };
+                fb_info_send(meObj);
+            });
+
+            function fb_info_send(meObj) {
+                $.post("../dm_fb_info_send/", {
+                    data: JSON.stringify(meObj),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }, function(data) {
+                    console.log('Sent to dm_fb_info!');
+                    console.log(data);
+                })
+            }
+
+
+            // function fb_info_send(meObj) {
+            //     var fb_user_likes_array = [];
+
+            //     function dealWithAfter(response) {
+            //         FB.api('/' + meObj.fb_user_id + '/likes/?fields=user_likes&limit=100&after=' + response.paging.cursors.after, function(response) {
+            //             getEachPage(response);
+            //             console.log('dealWithAfter');
+            //         })
+            //     }
+
+            //     function getEachPage(response) {
+            //         console.log(response);
+            //         if (response && ('paging' in response)) {
+            //             for (i = 0; i < response.data.length; i++) {
+            //                 fb_user_likes_array.push(response.data[i].id)
+            //             }
+            //             console.log('if here??');
+            //             console.log(response.paging.cursors.after);
+            //             dealWithAfter(response);                        
+            //         }
+            //     }
+            //     FB.api('/' + meObj.fb_user_id + '/likes/?fields=user_likes&limit=100', function(response) {
+            //         getEachPage(response);
+            //         console.log('rrrrr3', fb_user_likes_array);
+            //     });
+
+        }
+    </script>
+
+    <style>
+        /* .sidebar>a.item>div {
+            color: aliceblue !important;
+        } */
+        
+        .sidebar>a.item>div>i {
+            margin-right: 10px;
+        }
+        
+        body.pushable,
+        body.pushable>.pusher {
+            background: #EEEEEE !important;
+        }
+        
+        .mf-menu-list>a>i.icon {
+            margin-right: 0px !important;
+        }
+        
+        .mf-icontext {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        #main-menu {
+            margin: 0;
+        }
+    </style>
+    {% block HeadScript %}{% endblock %}
+</head>
+
+<body>
+    <div class="ui sidebar vertical menu">
+        <a class="active item"><img style="height: 40px;display: inline-block;" src="{% static './front_end/demo/static/test/img/logo.png' %}"> Robo-Advisor</a>
+        <a class="item" href="../coshow">
+            <div><i class="lemon icon"></i>Coshow</div>
+        </a>
+        <a class="item" href="../btcprice">
+            <div><i class="line chart icon"></i>BTCprice</div>
+        </a>
+    </div>
+    <div class="pusher">
+        <!-- Navbar menu -->
+        <div class="ui borderless main menu" id="main-menu">
+            <div class="ui text container mf-title">
+                <h2 class="ui center aligned icon header mf-icontext">
+                    Robo-Advisor
+                </h2>
+                <!-- if not loged in -->
+
+                <div class="ui item mf-menu-list">
+                    <a class="item" id="menu-user-action"><i class="user circle outline icon"></i></a>
+                    <a class="item" id="sidebar-action"><i class="sidebar icon"></i></a>
+                </div>
+                <div class="ui custom popup top center transition hidden menu-user-popup login-status-x">
+                    <div class="menu">
+                        <a class="item" id="act-login-modal">LOG IN</a>
+                    </div>
+                    <div class="ui aligned center small modal" id="login-modal">
+                        <div class="ui aligned center header">
+                            <h1>Welcome!</h1>
+                            <p style="font-family: 'cwTeXHei', sans-serif !important">Sign in to access your personalized homepage.</br>Active personal dictionary database.</p>
+                            <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-use-continue-as="true" onlogin="checkLoginState()" scope="public_profile, email, user_likes, user_friends">
+                            </div>
+                            <div id="status"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui custom popup top center transition hidden menu-user-popup login-status-o">
+                    <div class="menu">
+                        <a class="item" href="../dm_user_account/">
+                            <i class="user circle outline icon"></i>ACCOUNT
+                        </a>
+                        <a class="item" id="act-logout">
+                            <i class="log out icon"></i>LOGOUT
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Navbar menu -->
+        {% block BodyContent %}{% endblock %}
+
+    </div>
+</body>
+
+</html>

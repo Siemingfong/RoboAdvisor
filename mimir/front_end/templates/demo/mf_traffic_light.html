@@ -1,0 +1,334 @@
+{% extends 'demo/mf_base.html' %}{% load static %} {% block HeadScript %}
+<style>
+    .text-for-read {
+        font-family: 'cwTeXHei', sans-serif !important;
+    }
+</style>
+
+<script src="{% static './front_end/demo/static/custom/js/gauge.min.js'  %}"></script>
+<script>
+    $(document).ready(function () {
+
+    });
+</script>
+{% endblock %} {% block BodyContent %}
+<div class="ui one column doubling stackable grid container">
+    <div class="column">
+        <h2 class="ui header mf-header">Preditctors</h2>
+
+        <!--
+        <div class="ui segment">
+            <div class="ui equal width stackable doubling center aligned grid container">
+                <div class="column">
+                    <h3>Moving Averages</h3>
+                    <canvas id="price-inc" style="width:100%;"></canvas>
+                    <h2 id="price-inc-title"></h2>
+                </div>
+                <div class="column">
+                    <h3>Oscillators</h3>
+                    <canvas id="text-inc" style="width:100%;"></canvas>
+                    <h2 id="osc-inc-title"></h2>
+                </div>
+            </div>
+        </div>
+    	-->
+
+
+<!-- TradingView Widget BEGIN BTC Technical analysis-->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/COINBASE-BTCUSD/technicals/" rel="noopener" target="_blank"><span class="blue-text"></span></a></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+  {
+  "width": "100%",
+  "height": "450",
+  "locale": "en",
+  "symbol": "COINBASE:BTCUSD",
+  "interval": "1D"
+}
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
+<!-- TradingView Widget BEGIN  BTCUSD Rates -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/COINBASE-BTCUSD/" rel="noopener" target="_blank"><span class="blue-text"></span></a></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+  {
+  "locale": "en",
+  "symbol": "COINBASE:BTCUSD",
+  "width": "100%"
+}
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
+
+
+<!-- TradingView Widget BEGIN Cryptocurencies Market Witget
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/markets/cryptocurrencies/prices-bitcoin/" rel="noopener" target="_blank"><span class="blue-text"></span></a></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-screener.js" async>
+  {
+  "width": "100%",
+  "height": "500",
+  "defaultColumn": "oscillators",
+  "screener_type": "crypto_mkt",
+  "displayCurrency": "USD",
+  "locale": "en"
+}
+  </script>
+</div>
+-->
+
+<!-- TradingView Widget END -->
+
+ 
+<!-- TradingView Widget BEGIN Cryptocurrencies Moving Average Trending Witget
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/cryptocurrency-signals/" rel="noopener" target="_blank"><span class="blue-text">Cryptocurrency Screener</span></a> by TradingView</div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-screener.js" async>
+  {
+  "width": "100%",
+  "height": "500",
+  "defaultColumn": "moving_averages",
+  "defaultScreen": "general",
+  "market": "crypto",
+  "showToolbar": true,
+  "locale": "en"
+}
+  </script>
+</div>
+-->
+<!-- TradingView Widget END -->
+
+
+        <h2 class="ui header mf-header">DETAILS</h2>
+        <div class="ui segment">
+            <div class="ui equal width stackable doubling center aligned grid container">
+                <div class="column">
+                    <h3>Moving Averages</h3>
+                    <table class="ui celled green table text-for-read">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inc-detail">
+                            <tr>
+                                <td>Simple Moving Average (10)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Exponential Moving Average (10)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Simple Moving Average (20)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Exponential Moving Average (20)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+
+                            <tr>
+                                <td>Simple Moving Average (30)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Exponential Moving Average (30)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Simple Moving Average (50)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Exponential Moving Average (50)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Simple Moving Average (90)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Exponential Moving Average (90)</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Simple Moving Average (200)</td>
+                                <td class="positive">BUY</td>
+                            </tr>
+                            <tr>
+                                <td>Exponential Moving Average (200)</td>
+                                <td class="positive">BUY</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="column">
+                    <h3>Oscillators</h3>
+                    <table class="ui celled green table text-for-read">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="os-inc-detail">
+                            <tr>
+                                <td>Relative Strength Index (14)</td>
+                                <td class="">Neutral</td>
+                            </tr>
+                            <tr>
+                                <td>Stochastic Fast (14, 3, 1)</td>
+                                <td class="">Neutral</td>
+                            </tr>
+                            <tr>
+                                <td>Commodity Channel Index (20)</td>
+                                <td class="">Neutral</td>
+                            </tr>
+                            <tr>
+                                <td>Average Directional Index (14)</td>
+                                <td class="">Neutral</td>
+                            </tr>
+                            <tr>
+                                <td>Momentum (10)</td>
+                                <td class="positive">BUY</td>
+                            </tr>
+                            <tr>
+                                <td>Stochastic RSI Fast (3, 3, 14, 14)</td>
+                                <td class="">Neutral</td>
+                            </tr>
+                            <tr>
+                                <td>MACD Level (12, 27)</td>
+                                <td class="negtaive">SELL</td>
+                            </tr>
+                            <tr>
+                                <td>Awesome Oscillator</td>
+                                <td class="negative">SELL</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <h2 class="ui header mf-header">NEWS CATCH</h2>
+        <div class="ui segment">
+            <div class="ui equal width stackable doubling center aligned grid container">
+                <div class="column">
+                    <table class="ui celled center very padded aligned table text-for-read">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Sen_type</th>
+                                <th>News</th>
+                            </tr>
+                        </thead>
+                        <tbody id="news-sentiment">
+                            <tr>
+                                <td rowspan="2">1</td>
+                                <td>short</td>
+                                <td>the responses generally fell into five categories: citi's steve englander addresses 5 key
+                                    responses to his previous more negative view on bitcoin.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>sentiment
+                                </td>
+                                <td>we are left with the possibility that the properties of a bitcoin ecosystem that comes to
+                                    be driven by individual self-interest will differ from its intended properties.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td rowspan="2">2</td>
+                                <td>long</td>
+                                <td>bitcoin as a store of value likely will struggle to gain traction if our bullish usd view
+                                    for 2014 turns out to be correct.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>short
+                                </td>
+                                <td>with its new funding in tow, the new york city-based startup plans to launch a forex trading
+                                    platform for bitcoin, specifically one that allows people to make leveraged trades on
+                                    margin and short the market .
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set Gauge Detail
+    function mfSetGauge(targetId, minV, maxV, actualV) {
+        let vRange = maxV - minV;
+        let opts = {
+            angle: 0.15, /// The span of the gauge arc
+            lineWidth: 0.44, // The line thickness
+            pointer: {
+                length: 0.9, // Relative to gauge radius
+                strokeWidth: 0.035 // The thickness
+            },
+            colorStart: '#6FADCF', // Colors
+            colorStop: '#8FC0DA', // just experiment with them
+            strokeColor: '#E0E0E0', // to see which ones work best for you
+            percentColors: [
+                [0.2, "#ff3b3b"],
+                [0.4, "#fd7e7e"],
+                [0.6, "#a1c1a9"],
+                [0.8, "#c8e1ff"],
+                [1.0, "#3e8be9"]
+            ],
+            staticLabels: {
+                font: "10px sans-serif", // Specifies font
+                labels: [minV, minV + 0.25 * vRange, minV + 0.5 * vRange, minV + 0.75 * vRange, minV + 1.0 * vRange], // Print labels at these values
+                color: "#000000", // Optional: Label text color
+                fractionDigits: 0 // Optional: Numerical precision. 0=round off.
+            },
+        };
+        var target = document.getElementById(targetId); // your canvas element
+        var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
+        gauge.maxValue = maxV; // set max gauge value
+        gauge.setMinValue(minV); // set min value
+        gauge.set(actualV); // set actual value
+    };
+
+    // Sent GaugeInfo and callback mfSetGauge
+    function sentGaugeInfo(priceIncTitle, oscIncTitleTitle, actualPriceV, actualOscV) {
+        let $priceIncTitle = $('#price-inc-title');
+        let $oscIncTitleTitle = $('#osc-inc-title');
+
+        // Set value & Color
+        $priceIncTitle.text(priceIncTitle);
+        $oscIncTitleTitle.text(oscIncTitleTitle);
+
+        // Draw
+        mfSetGauge('price-inc', -100, 100, actualPriceV);
+        mfSetGauge('text-inc', -100, 100, actualOscV);
+    };
+    sentGaugeInfo("STRONG SELL", "SELL", -80, -20);
+
+    // Sent inc-detail
+    function sentIncDetail(incDetailJson) {
+        let json = incDetailJson;
+        let incDetail = incDetailJson.inc_detail
+        let $incDetail = $('#inc-detail');
+
+        // Set 
+        for (i = 0; i < incDetail.length; i++) {
+            $incDetail.append("<tr><td>" + incDetail[i][0] + "</td><td>" + incDetail[i][1] + "</td></tr>");
+        };
+    }
+</script>
+{% endblock %}

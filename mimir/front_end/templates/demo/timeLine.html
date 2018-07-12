@@ -1,0 +1,187 @@
+{% extends 'base.html' %}{% load static %} {% block HeadScript %}
+
+<link rel="stylesheet" type="text/css" href="{% static './custom/css/timeLineD3Annotation.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.js"></script>
+<script>
+    $(document)
+        .ready(function() {
+            // show dropdown on hover
+            $('.main.menu  .ui.dropdown').dropdown({
+                on: 'hover'
+            });
+
+            $('.selection.dropdown').dropdown();
+
+        });
+</script>
+{% endblock %} {% block BodyContent %}
+<div class="ui one column doubling stackable grid container">
+    <div class="column">
+        <h2 class="ui header mf-header">TimeLine Parameters</h2>
+        <div class="ui segment">
+            <form class="ui form" id="timeline_method_form">
+                {% csrf_token %}
+                <div class="two fields">
+                    <div class="field">
+                        <label>TimeLine Tag Method</label>
+                        <div class="ui selection dropdown">
+                            <input type="hidden" name="timeline_methods" ic-post-to="/timeline_ajax/" ic-trigger-on='change' ic-target='#target_span' ic-action="load_data">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Methods</div>
+                            <div class="menu">
+                                <div class="item " data-value="0">WhatACliff</div>
+                                <div class="item " data-value="1">PriceHistoryLandmark</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <span id='target_span'>0</span>
+        </div>
+        <h2 class="ui header mf-header">BTC TimeLine</h2>
+        <div class="ui segment" id="segment_w">
+            <!-- timeLineChart.js use -->
+            <!-- <canvas id="myChart"></canvas> -->
+
+            <!-- d3 annotationjs 960 -->
+            <svg id="lineChart" width=960 height=500></svg>
+        </div>
+    </div>
+</div>
+
+<div class=" ui one column doubling stackable grid container">
+    <div class="column">
+        <h2 class="ui header mf-header">TimeLine Info</h2>
+        
+        <!-- <button class="ui primary basic button " type="submit " value="Submit " form="days_form ">Primary</button> -->
+    </div>
+</div>
+<div class="ui one column doubling stackable grid container">
+    <div class="column">
+        <h2 class="ui header mf-header">Selected Articles</h2>
+        <div class="ui segment">
+            <form class="ui form" action="/timeline/" method="post" id="days_form">
+                {% csrf_token %}
+                <div class="two fields">
+                    <div class="field">
+                        <label>前幾天</label>
+                        <div class="ui selection dropdown">
+                            <input type="hidden" name="b_days">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Days</div>
+                            <div class="menu">
+                                <div class="item " data-value="-3">3</div>
+                                <div class="item " data-value="-5">5</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field ">
+                        <label>後幾天</label>
+                        <div class="ui selection dropdown">
+                            <input type="hidden" name="a_days">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Days</div>
+                            <div class="menu">
+                                <div class="item" data-value="3">3</div>
+                                <div class="item" data-value="5">5</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="ui submit button" form="days_form">Submit</button>
+            </form>
+        </div>
+        <div class="ui segment ">
+            <table class="ui celled striped table">
+                <thead>
+                    <tr>
+                        <th>標記時間</th>
+                        <th>標記編號</th>
+                        <th>新聞日期</th>
+                        <th>來源</th>
+                        <th>標題</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t_tag_date, t_tag_num, t_news_date, t_news_source, t_news_title, t_news_content in t_list %}
+                    <tr>
+                        <td class="collapsing">{{ t_tag_date }}</td>
+                        <td class="collapsing">{{ t_tag_num }}</td>
+                        <td class="collapsing">{{ t_news_date }}</td>
+                        <td class="collapsing">{{ t_news_source }}</td>
+                        <td title="{{ t_news_title }}">{{ t_news_title }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- For timeLineChart.JS -->
+<!-- <script>
+    var p_date = {{ price_date|safe }} ;
+    var p_close = {{ price_close|safe }};
+    var data = {
+        labels: p_date,
+        datasets: [{
+            label: "BTC",
+            type: "line",
+            data: p_close,
+            borderColor: "#00ADB5", //線框顏色
+            fillColor: "rgb(0, 173, 181, 0.2)", //線圖背景
+            pointBorderColor: '#00ADB5', //點框顏色
+            pointBackgroundColor: '#00ADB5', //點背景
+            pointRadius: 0.2,
+            pointHoverRadius: 13,
+            pointHitRadius: 15,
+            pointBorderWidth: 0,
+        }]
+    };
+    </script> -->
+<!-- <script src="{% static './custom/js/timeLineChart.js' %}"></script> -->
+
+<!-- D3 Annotationjs and d3js -->
+
+<!-- <script src='http://d3js.org/d3.v3.min.js' charset="utf-8"></script> -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js' charset="utf-8"></script>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://cdn.rawgit.com/susielu/d3-annotation/75ff6169/d3-annotation.js"></script>
+<script src="{% static './custom/js/timeLineD3Annotation.js' %}"></script>
+
+
+<!-- call timeLineD3Annotation.js function -->
+<script>
+    // Detect window width change
+    var seg_width = document.getElementById('segment_w').clientWidth;
+
+    var btc_tsv_data = '{% static "./custom/js/price_tsv.tsv" %}';
+    var mark_list = {{ landmark_list|safe }};
+
+    function load_data() {
+        if ($('#target_span').text() == 0){
+            var mark_list = {{ cliff_list|safe }} ;
+            console.log('cliff_list');
+            console.log(mark_list);
+            d3PriceLinefunction();
+            console.log('yee')
+        } else {
+            var mark_list = {{ landmark_list|safe }} ;
+            console.log('landmark_list');
+            console.log(mark_list);
+            d3PriceLinefunction();
+            console.log('owww')
+        }
+    }
+
+    document.getElementById('lineChart').style.width = 0.95 * seg_width + "px";
+    d3PriceLinefunction();
+
+    $(window).resize(function() {
+        var seg_width = document.getElementById('segment_w').clientWidth;
+        document.getElementById('lineChart').style.width = 0.95 * seg_width + "px";
+        console.log(seg_width);
+        d3PriceLinefunction();
+    });
+</script>
+{% endblock %}

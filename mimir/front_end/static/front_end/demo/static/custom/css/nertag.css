@@ -1,0 +1,141 @@
+/* TODO:NER_tag */
+
+#get_article {
+    height: 300px;
+}
+
+.ui.action.input input[type="file"] {
+    display: none;
+}
+
+.ui.action.input {
+    margin-bottom: 10px;
+}
+
+#stats_segment {
+    margin-bottom: 1.5em;
+}
+
+#sigma-container {
+    height: 70%;
+}
+
+.dm-tab {
+    padding: 0.92857143em 0.5em !important;
+}
+
+.entities {
+    line-height: 2;
+}
+
+[data-entity] {
+    padding: 0.25em 0.35em;
+    margin: 0px 0.25em;
+    line-height: 1;
+    display: inline-block;
+    border-radius: 0.25em;
+    border: 1px solid;
+}
+
+[data-entity]::after {
+    box-sizing: border-box;
+    content: attr(data-entity);
+    font-size: 0.6em;
+    line-height: 1;
+    padding: 0.35em;
+    border-radius: 0.35em;
+    text-transform: uppercase;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0px 0px 0.1rem 0.5rem;
+}
+
+[data-entity][data-entity="PERSON"] {
+    background: rgba(255, 127, 14, 0.2);
+    border-color: rgb(255, 127, 14);
+}
+
+[data-entity][data-entity="PERSON"]::after {
+    background: rgb(255, 127, 14);
+}
+
+[data-entity][data-entity="MONEY"] {
+    background: rgba(174, 199, 232, 0.2);
+    border-color: rgb(174, 199, 232);
+}
+
+[data-entity][data-entity="MONEY"]::after {
+    background: rgb(174, 199, 232);
+}
+
+[data-entity][data-entity="GSP"] {
+    background: rgba(197, 176, 213, 0.2);
+    border-color: rgb(197, 176, 213);
+}
+
+[data-entity][data-entity="GSP"]::after {
+    background: rgb(197, 176, 213);
+}
+
+[data-entity][data-entity="FACILITY"] {
+    background: rgba(255, 152, 150, 0.2);
+    border-color: rgb(255, 152, 150);
+}
+
+[data-entity][data-entity="FACILITY"]::after {
+    background: rgb(255, 152, 150);
+}
+
+[data-entity][data-entity="ORGANIZATION"] {
+    background: rgba(152, 223, 138, 0.2);
+    border-color: rgb(152, 223, 138);
+}
+
+[data-entity][data-entity="ORGANIZATION"]::after {
+    background: rgb(152, 223, 138);
+}
+
+[data-entity][data-entity="GPE"] {
+    background: rgba(148, 103, 189, 0.2);
+    border-color: rgb(148, 103, 189);
+}
+
+[data-entity][data-entity="GPE"]::after {
+    background: rgb(148, 103, 189);
+}
+
+[data-entity][data-entity="LOCATION"] {
+    background: rgba(31, 119, 180, 0.2);
+    border-color: rgb(31, 119, 180);
+}
+
+[data-entity][data-entity="LOCATION"]::after {
+    background: rgb(31, 119, 180);
+}
+
+[data-entity][data-entity="DATE"] {
+    background: rgba(255, 187, 120, 0.2);
+    border-color: rgb(255, 187, 120);
+}
+
+[data-entity][data-entity="DATE"]::after {
+    background: rgb(255, 187, 120);
+}
+
+[data-entity][data-entity="TIME"] {
+    background: rgba(44, 160, 44, 0.2);
+    border-color: rgb(44, 160, 44);
+}
+
+[data-entity][data-entity="TIME"]::after {
+    background: rgb(44, 160, 44);
+}
+
+[data-entity][data-entity="PERCENT"] {
+    background: rgba(214, 39, 40, 0.2);
+    border-color: rgb(214, 39, 40);
+}
+
+[data-entity][data-entity="PERCENT"]::after {
+    background: rgb(214, 39, 40);
+}

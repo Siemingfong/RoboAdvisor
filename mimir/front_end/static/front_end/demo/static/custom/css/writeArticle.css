@@ -1,0 +1,45 @@
+/* Import */
+
+@import url(//fonts.googleapis.com/earlyaccess/cwtexhei.css);
+@import url(//fonts.googleapis.com/css?family=Orbitron);
+
+/* Responsive */
+
+@media only screen and (max-width: 765px) {
+    body {}
+}
+
+
+/* Body */
+
+body {
+    min-width: 400px;
+    background-color: #EEEEEE;
+}
+
+
+/* Menu */
+
+.mf-title {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    position: relative;
+}
+
+.ui.icon.mf-icontext {
+    margin: 0;
+    padding: 0.3em;
+}
+
+.ui.icon.mf-icontext>img {
+    margin: 0;
+}
+
+.ui.item.mf-menu-list {
+    position: absolute;
+    padding: 0px;
+    top: 0;
+    right: 1em;
+    bottom: 0;
+    margin: auto;
+}

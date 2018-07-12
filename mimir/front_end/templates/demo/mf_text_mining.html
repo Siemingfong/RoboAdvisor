@@ -1,0 +1,644 @@
+{% extends 'demo/mf_base.html' %}{% load static %} {% block HeadScript %}
+
+<!-- nertag.css -->
+<link rel="stylesheet" href="{% static './front_end/demo/static/custom/css/nertag.css' %}">
+<!-- d3_ellipse_force.css -->
+<link rel="stylesheet" href="{% static './front_end/demo/static/custom/css/d3_ellipse_force.css' %}">
+
+
+<!-- Sigma.js -->
+<script src="{% static './front_end/demo/static/custom/js/sigma.min.js'  %}"></script>
+<script src="{% static './front_end/demo/static/custom/js/sigma.parsers.json.min.js'  %}"></script>
+<!-- d3-ellipse-force.js -->
+<script src="{% static './front_end/demo/static/custom/js/d3-ellipse-force.js'  %}"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Upload txt button
+        $("input:text").click(function() {
+            $(this).parent().find("input:file").click();
+        });
+        // Upload txt button
+        $('input:file', '.ui.action.input')
+            .on('change', function(e) {
+                var name = e.target.files[0].name;
+                $('input:text', $(e.target).parent()).val(name);
+            });
+        // dropdown menu-tab
+        $('.dropdown').dropdown();
+        $('.menu .item').tab();
+        // Analyze ajax request 
+        $('#article_analyze').click(function() {
+            $.ajax({
+                url: "../text_analyze/",
+                data: {
+                    'article': $('#get_article').val()
+                },
+                //成功後執行的函數
+                success: function(data) {
+                    var data = JSON.stringify(data);
+                    var json = JSON.parse(data);
+                    clean_output();
+                    stats_update(json);
+                    $('.dropdown').dropdown();
+                }
+            });
+        })
+
+
+        //TODO:NER_tag
+        function new_tag(nerjson) {
+            ner_html = ""
+            for (var i = 0; i < nerjson.total_words; i++) {
+                word = nerjson.words[i]
+                ne = nerjson.NE[i]
+
+                if (ne[0] == 'B') {
+                    ner_html += '<mark data-entity=' + ne.substr(2) + '>'
+                }
+                ner_html += word + " "
+                try {
+                    next_NE = nerjson.NE[i + 1]
+                } catch (error) {
+                    if (ne != 'O') {
+                        ner_html += '</mark>'
+
+                    }
+                }
+                if (ne != 'O') {
+                    if (next_NE[0] != 'I') {
+                        ner_html += '</mark>'
+
+                    }
+                }
+
+            }
+            return ner_html;
+
+        }
+        //TODO:NER_network
+        function elliptic_force(graph) {
+            console.log(graph)
+
+            var svg = d3.select("#svg").append("svg").style("width", 960).style("height", 600),
+                width = 960,
+                height = 600;
+            // var svg = d3.select("svg"),
+            //     width = +svg.attr("width"),
+            //     height = +svg.attr("height");
+
+            //TODO:1.(參考：http://jsfiddle.net/Rom2BE/H2PkT/)先在這邊將group中配對的顏色先制訂出來，並生成配對的legend
+            //TODO:2.再回去修改data-entity的顏色(這裡有d3顏色的對照http://www.oxxostudio.tw/articles/201412/svg-d3-10-colors-2.html)
+            //TODO:3.客製化的顏色配對https://stackoverflow.com/questions/21208031/how-to-customize-the-color-scale-in-a-d3-line-chart?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
+
+            var color = d3.scaleOrdinal()
+                .domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                .range(["rgb(255, 127, 14)", "rgb(152, 223, 138)", "rgb(31, 119, 180)", "rgb(255, 187, 120)", "rgb(44, 160, 44)", "rgb(174, 199, 232)", "rgb(214, 39, 40)", "rgb(255, 152, 150)", "rgb(148, 103, 189)", "rgb(197, 176, 213)"]);
+
+            // d3.scaleOrdinal(d3.schemeCategory20);
+
+            var nd;
+            for (var i = 0; i < graph.nodes.length; i++) {
+                nd = graph.nodes[i];
+                nd.rx = nd.id.length * 4.5;
+                nd.ry = 12;
+            }
+
+            var simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(function(d) {
+                    return d.id;
+                }))
+                .force("collide", d3.ellipseForce(6, 0.5, 5))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            var link = svg.append("g")
+                .attr("class", "link")
+                .selectAll("line")
+                .data(graph.links)
+                .enter().append("line")
+                .attr("stroke-width", function(d) {
+                    return Math.sqrt(d.value);
+                });
+
+            var node = svg.append("g")
+                .attr("class", "node")
+                .selectAll("ellipse")
+                .data(graph.nodes)
+                .enter().append("ellipse")
+                .attr("rx", function(d) {
+                    return d.rx;
+                })
+                .attr("ry", function(d) {
+                    return d.ry;
+                })
+
+            .attr("fill", function(d) {
+                    return color(d.group);
+                })
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            var text = svg.append("g")
+                .attr("class", "labels")
+                .selectAll("text")
+                .data(graph.nodes)
+                .enter().append("text")
+                .attr("dy", 2)
+                .attr("text-anchor", "middle")
+                .text(function(d) {
+                    return d.id
+                })
+                .attr("fill", "white");
+
+
+            simulation
+                .nodes(graph.nodes)
+                .on("tick", ticked);
+
+            simulation.force("link")
+                .links(graph.links);
+
+            function ticked() {
+                link
+                    .attr("x1", function(d) {
+                        return d.source.x;
+                    })
+                    .attr("y1", function(d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function(d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function(d) {
+                        return d.target.y;
+                    });
+
+                node
+                    .attr("cx", function(d) {
+                        return d.x;
+                    })
+                    .attr("cy", function(d) {
+                        return d.y;
+                    });
+                text
+                    .attr("x", function(d) {
+                        return d.x;
+                    })
+                    .attr("y", function(d) {
+                        return d.y;
+                    });
+
+            }
+
+            function dragstarted(d) {
+                if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(d) {
+                d.fx = d3.event.x;
+                d.fy = d3.event.y;
+            }
+
+            function dragended(d) {
+                if (!d3.event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+
+            //TODO:legend
+
+            var legend = svg.selectAll(".legend")
+                .data(color.domain())
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(0," + i * 20 + ")";
+                });
+
+
+            legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", color);
+
+            legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) {
+                    if (d == 1) {
+                        return d = 'PERSON';
+                    } else if (d == 2) {
+                        return d = 'ORGANIZATION';
+                    } else if (d == 3) {
+                        return d = 'LOCATION';
+                    } else if (d == 4) {
+                        return d = 'DATE';
+                    } else if (d == 5) {
+                        return d = 'TIME';
+                    } else if (d == 6) {
+                        return d = 'MONEY';
+                    } else if (d == 7) {
+                        return d = 'PERCENT';
+                    } else if (d == 8) {
+                        return d = 'FACILITY';
+                    } else if (d == 9) {
+                        return d = 'GPE';
+                    } else {
+                        return d = 'GSP';
+                    }
+                });
+
+
+        }
+        // Add words to market
+        $('#add_to_market').click(function() { // $('*[data-tab="words_market"]').click(function() {
+            $('#new_words_market').empty();
+            var wanted_list = [];
+            for (i = 0; i < $('.ui.label.transition.visible').length; i++) {
+                wanted_list.push($('.ui.label.transition.visible')[i].dataset.value);
+            };
+            wanted_list = $.unique(wanted_list);
+            for (i = 0; i < wanted_list.length; i++) {
+                $('#new_words_market').append(
+                    "<tr><td><button class='ui labeled icon button market_word' data-value='" +
+                    wanted_list[i] + "'>" +
+                    "<i class='remove circle icon'></i>" +
+                    wanted_list[i] + "</button></td><td></td></tr>"
+                );
+            };
+            $('.market_word').click(function() {
+                $(this).closest("tr").remove();
+            });
+        });
+        //  Enter key-in wanna words 
+        $('#hand_to_add').click(function() {
+            handToAdd();
+        });
+        //  Enter key-in wanna words 
+        $("#wanna_this_word").keypress(function(e) {
+            if (e.which == 13 || e.keyCode == 13) {
+                handToAdd();
+            };
+        });
+        // key-in wanna words function
+        function handToAdd() {
+            var wanted_list = [];
+            for (i = 0; i < $('.market_word').length; i++) {
+                wanted_list.push($('.market_word')[i].dataset.value);
+            };
+            if ($('#wanna_this_word').val() != "") {
+                if ($.inArray($('#wanna_this_word').val(), wanted_list) == -1) {
+                    $('#new_words_market').append(
+                        "<tr><td><button class='ui labeled icon button market_word' data-value='" +
+                        $('#wanna_this_word').val() + "'>" +
+                        "<i class='remove circle icon'></i>" +
+                        $('#wanna_this_word').val() + "</button></td><td></td></tr>"
+                    );
+                    $('#wanna_this_word').val('');
+                    $('.market_word').click(function() {
+                        $(this).closest("tr").remove();
+                    });
+                } else {
+                    alert("字詞: " + $('#wanna_this_word').val() + "已經在欲新增字詞表了。")
+                    $('#wanna_this_word').val('');
+                }
+            } else {
+                alert('It cant be space, please add word!');
+            }
+        }
+        // Update the basic_stats
+        function stats_update(json) {
+            // 新增
+
+            $('#article_tag_output').html(new_tag(json.ner_json));
+            $('#article_NER_network_output').html("<div id='svg'></div>").append(elliptic_force(json.graph_json));
+            $('#dm_total_words').text(json.dm_total_words);
+            $('#dm_used_words').text(json.dm_used_words);
+            $('#dm_total_segwords').text(json.dm_total_segwords);
+            $('#dm_used_segwords').text(json.dm_used_segwords);
+            for (i = 0; i < json.dm_sentences.length; i++) {
+                $('#article_output').append("<tr><td>" + json.dm_seg_words[i].map(i => i).join('/') + "</td>" +
+                    "<td><div class='ui multiple dropdown'><input type='hidden' name='filters'> \
+                                <i class='filter icon'></i><span class='text'>新增字詞</span><div class='menu'> \
+                                <div class='ui icon search input'><i class='search icon'></i><input type='text' placeholder='Search words...'></div> \
+                                <div class='scrolling menu'> " +
+                    json.dm_sentences_2_3_gram[i].map(i => '<div class="item wanted_word" data-value="' + i[
+                        0] + '"><div class="ui red empty circular label"></div>' + i[0] + '</div>').join('') +
+                    "</div></div></td></tr>");
+            };
+            for (i = 0; i < json.dm_hf_mix_words.length; i++) {
+                $('#dm_hf_mix_words').append("<tr><td>" + json.dm_hf_mix_words[i][0] + "</td><td>" +
+                    json.dm_hf_mix_words[i][1] + "</td></tr");
+            }
+            for (i = 0; i < json.dm_hf_words.length; i++) {
+                $('#dm_hf_words').append("<tr><td>" + json.dm_hf_words[i][0] + "</td><td>" +
+                    json.dm_hf_words[i][1] + "</td></tr");
+            }
+            for (i = 0; i < json.dm_hf_2gram.length; i++) {
+                $('#dm_hf_2gram').append("<tr><td>" + json.dm_hf_2gram[i][0] + "</td><td>" +
+                    json.dm_hf_2gram[i][1] + "</td></tr");
+            }
+            for (i = 0; i < json.dm_hf_coshow_words.length; i++) {
+                $('#dm_hf_coshow_words').append("<tr><td>" + json.dm_hf_coshow_words[i][0] + "</td><td>" +
+                    json.dm_hf_coshow_words[i][1] + "</td></tr");
+            }
+            // try {
+            //     s = new sigma({
+            //         graph: JSON.parse(json.dm_coshow_words_graph),
+            //         container: 'sigma-container',
+            //         settings: {
+            //             defaultNodeColor: '#00B5AD',
+            //             defaultEdgeColor: '#00B5AD',
+            //             labelThreshold: 1,
+            //             maxEdgeSize: 10
+            //         }
+            //     });
+            // } catch (err) {
+            //     console.log('eerroorr');
+            // }
+        }
+        // Clean all the output
+        function clean_output() {
+            $(
+                '#article_NER_network_output,#article_tag_output,#article_output, #new_words_market, #dm_hf_mix_words, #dm_hf_words, #dm_hf_2gram, \
+                   #dm_hf_coshow_words, #sigma-container'
+            ).empty();
+            $('#dm_total_words, #dm_used_words, #dm_total_segwords, #dm_used_segwords').text(0);
+        }
+        // Remake Ajax request sent with whe added wanted_words
+        $('#check_new_remake').click(function() {
+            $('#analyze_modal')
+                .modal({
+                    blurring: true
+                }).modal('show');
+            $('#go_remake').click(function() {
+                var wanted_list = [];
+                for (i = 0; i < $('.market_word').length; i++) {
+                    wanted_list.push($('.market_word')[i].dataset.value);
+                };
+                if ($.isEmptyObject(wanted_list) == false) {
+                    var wanted_list = JSON.stringify(wanted_list);
+                    $.ajax({
+                        url: "../text_analyze/",
+                        data: {
+                            'article': $('#get_article').val(),
+                            'wanted_list': wanted_list
+                        },
+                        success: function(data) {
+                            var data = JSON.stringify(data);
+                            var json = JSON.parse(data);
+                            clean_output();
+                            stats_update(json);
+                            $('.dropdown').dropdown();
+                            console.log('Successfully Remake!');
+                        }
+                    });
+                } else {
+                    alert('Please add some words.');
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %} {% block BodyContent %}
+<div class="ui one column doubling stackable grid container">
+    <div class="column">
+        <h2 class="ui header mf-header">Artucle Input</h2>
+        <div class="ui attached segment">
+            <div class="ui grid">
+                <div class="sixteen wide tablet twelve wide computer column">
+                    <h3>Paste Article</h2>
+                        <div class="ui form">width
+                            <div class="field">
+                                <textarea id="get_article">Alex is in Taipei. Alex hates Zucc. Alex is in Taipei. Mark is with Alex. Mark and Jack is in the Washington Monument. Taipei has Washington Monument. I am happy.</textarea>
+                            </div>
+                        </div>
+                </div>
+                <div class="sixteen wide tablet four wide computer column">
+                    <h3>Upload...</h2>
+                        <div class="ui disabled action input">
+                            <input type="text" placeholder="Upload Dictionary" readonly>
+                            <input type="file">
+                            <div class="ui icon button">
+                                <i class="upload icon"></i>
+                            </div>
+                        </div>
+                        <div class="ui disabled action input">
+                            <input type="text" placeholder="Upload Stop Words" readonly>
+                            <input type="file">
+                            <div class="ui icon button">
+                                <i class="upload icon"></i>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui bottom attached button teal" id="article_analyze" tabindex="0">GO Analyze!</div>
+
+        <h2 class="ui header mf-header">Words Ouput</h2>
+        <div class="ui attached segment" style="min-height:500px;">
+            <div class="ui top attached tabular menu">
+                <a class="active item dm-tab" data-tab="article_stats">文章統計</a>
+                <a class="item dm-tab" data-tab="article_tags">Named-entity 標籤</a>
+                <a class="item dm-tab" data-tab="article_NER_network">NER 網絡圖</a>
+                <!-- <a class="active item dm-tab" data-tab="words_network">共現網絡</a> -->
+                <a class="item dm-tab" data-tab="words_result">斷詞句結果</a>
+                <a class="item dm-tab" data-tab="words_market">欲新增列表</a>
+            </div>
+            <!-- 標籤 -->
+            <div class="ui bottom attached tab segment" data-tab="article_tags" style="height:800px;overflow-x: scroll;">
+                <div class="ui tag" id="article_tag_output">
+                </div>
+            </div>
+            <!-- NER網絡圖 -->
+            <div class="ui bottom attached tab segment" data-tab="article_NER_network" style="height:800px;overflow-x: scroll;">
+
+                <div class="ui tag" id="article_NER_network_output">
+
+                    <!-- <svg width="960" height="600"></svg> -->
+                </div>
+            </div>
+            <!-- 統計 -->
+            <div class="ui bottom attached tab segment" data-tab="article_stats" style="height:800px;overflow-x: scroll;">
+                <div class="ui four statistics segment" id="stats_segment">
+                    <div class="statistic">
+                        <div class="value" id="dm_total_words">
+                            0
+                        </div>
+                        <div class="label">
+                            總字數
+                        </div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value" id="dm_used_words">
+                            0
+                        </div>
+                        <div class="label">
+                            使用字數
+                        </div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value" id="dm_total_segwords">
+                            0
+                        </div>
+                        <div class="label">
+                            總斷詞數
+                        </div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value" id="dm_used_segwords">
+                            0
+                        </div>
+                        <div class="label">
+                            總用詞數
+                        </div>
+                    </div>
+                </div>
+                <div class="ui segment">
+                    <div class="ui two column doubling grid">
+                        <div class="column">
+                            <div class="ui fluid card">
+                                <div class="content">
+                                    <div class="header">高頻字</div>
+                                    <div class="meta">出現次數較多之字</div>
+                                    <div style="height:200px;overflow-x: scroll;">
+                                        <table class="ui celled small selectable table">
+                                            <thead>
+                                                <tr>
+                                                    <th>高頻字詞</th>
+                                                    <th>次數</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dm_hf_mix_words">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ui fluid card">
+                                <div class="content">
+                                    <div class="header">高頻字詞</div>
+                                    <div class="meta">出現次數較多之字詞(二字以上)</div>
+                                    <div style="height:200px;overflow-x: scroll;">
+                                        <table class="ui celled small selectable table">
+                                            <thead>
+                                                <tr>
+                                                    <th>高頻字詞</th>
+                                                    <th>次數</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dm_hf_words">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui two column doubling grid">
+                        <div class="column">
+                            <div class="ui fluid card">
+                                <div class="content">
+                                    <div class="header">高頻2-gram</div>
+                                    <div class="meta">出現次數較多之2-gram</div>
+                                    <div style="height:200px;overflow-x: scroll;">
+                                        <table class="ui celled small selectable table">
+                                            <thead>
+                                                <tr>
+                                                    <th>高頻2-gram</th>
+                                                    <th>次數</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dm_hf_2gram">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ui fluid card">
+                                <div class="content">
+                                    <div class="header">高頻共現字詞組</div>
+                                    <div class="meta">共現在同一句次數較多之字詞組合</div>
+                                    <div style="height:200px;overflow-x: scroll;">
+                                        <table class="ui celled small selectable table">
+                                            <thead>
+                                                <tr>
+                                                    <th>共現字詞組</th>
+                                                    <th>次數</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dm_hf_coshow_words">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui bottom attached active tab segment" data-tab="words_network" style="height:800px;overflow-x: scroll;">
+                <div class="ui segment" id="sigma-container">
+                </div>
+            </div>
+            <div class="ui bottom attached tab segment" data-tab="words_result" style="height:800px;overflow-x: scroll;">
+                <table class="ui celled small selectable table">
+                    <thead>
+                        <tr>
+                            <th>斷句與分詞結果</th>
+                            <th>n-gram與新增詞彙</th>
+                        </tr>
+                    </thead>
+                    <tbody id="article_output">
+                    </tbody>
+                </table>
+                <button class="fluid ui button" id="add_to_market">送至新增列表</button>
+            </div>
+            <div class="ui bottom attached tab segment" data-tab="words_market" style="height:800px;overflow-x: scroll;">
+                <div class="ui right labeled left icon fluid input">
+                    <i class="tags icon"></i>
+                    <input type="text" placeholder="Add New Word Here..." id="wanna_this_word">
+                    <a class="ui tag teal label" id="hand_to_add">Add Word</a>
+                </div>
+                <table class="ui celled small selectable table">
+                    <thead>
+                        <tr>
+                            <th>欲新增詞彙</th>
+                            <th>分類</th>
+                        </tr>
+                    </thead>
+                    <tbody id="new_words_market">
+                    </tbody>
+                </table>
+                <button class="fluid ui teal button" id="check_new_remake">確認新增字詞，並且重新分析!</button>
+            </div>
+        </div>
+        <div class="ui mini modal" id="analyze_modal">
+            <div class="ui icon header">
+                <i class="terminal icon"></i> RE-ANALYZE!
+            </div>
+            <div class="actions">
+                <div class="ui gray basic cancel button">
+                    <i class="remove icon"></i> No
+                </div>
+                <div class="ui teal ok button" id="go_remake">
+                    <i class="checkmark icon"></i> Yes
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}

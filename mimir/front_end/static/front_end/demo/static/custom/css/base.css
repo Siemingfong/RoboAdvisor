@@ -1,0 +1,89 @@
+/* Import */
+
+@import url(//fonts.googleapis.com/earlyaccess/cwtexhei.css);
+@import url(//fonts.googleapis.com/css?family=Orbitron);
+
+/* Responsive */
+
+@media only screen and (max-width: 765px) {}
+
+
+/* Body */
+
+body {
+    min-width: 400px;
+    background-color: #EEEEEE;
+}
+
+h1,
+h2,
+h3,
+h4,
+a,
+span,
+p,
+div,
+button .ui.button {
+    color: #222831 !important;
+    font-family: 'Orbitron', 'cwTeXHei', sans-serif !important;
+    font-weight: 500 !important;
+}
+
+
+/* Menu */
+
+.main.menu {
+    -webkit-transition: all 1s ease;
+    transition: all 1s ease;
+}
+
+.menu.menu-change {
+    height: 50px;
+}
+
+.mf-title {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    position: relative;
+}
+
+.mf-title.menu-change {
+    padding: 0;
+}
+
+.ui.icon.mf-icontext {
+    margin: 0;
+    padding: 0.3em;
+}
+
+.ui.item.mf-menu-list {
+    position: absolute;
+    padding: 0px;
+    top: 0;
+    right: 1em;
+    bottom: 0;
+    margin: auto;
+}
+
+
+/* Section Header  */
+
+.ui.header.mf-header {
+    display: inline-block;
+    border-bottom: #00ADB5 5px solid;
+}
+
+
+/* Intro */
+
+.mf-intro-title {
+    font-size: 50px;
+}
+
+
+/* Card */
+
+.ui.cards>.card>.image>img,
+.ui.card>.image>img {
+    height: 200px;
+}

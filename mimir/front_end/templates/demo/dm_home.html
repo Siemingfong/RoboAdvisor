@@ -1,0 +1,60 @@
+{% extends 'base.html' %}{% load static %} {% block HeadScript %} {% endblock %} {% block BodyContent %}
+<div class="ui vertical masthead center aligned segment" style="height:680px;padding-top:250px;background-image: linear-gradient( 135deg, #FD6585 10%, #0D25B9 100%);">
+    <div class="ui text container">
+        <h1 class="ui header" style="color:#fff !important;font-size:2.5em;">
+            Robo-advisor
+        </h1>
+        <h4 style="color:#fff !important;font-size:1em;">DEMO v0.1</h4>
+        <button class="ui yellow basic button">Intro</button>
+    </div>
+</div>
+<div class="ui vertical stripe segment" style="padding-top:150px;">
+    <div class="ui middle aligned stackable grid container">
+        <div class="row">
+            <div class="eight wide column">
+                <h3 class="ui header">We Help Companies and Companions</h3>
+                <p>We can give your company superpowers to do things that they never thought possible. Let us delight your customers and empower your needs...through pure data analytics.</p>
+            </div>
+            <div class="six wide right floated column">
+                <img src="{% static './front_end/demo/static/custom/img/timeline.jpg' %}" class="ui large bordered rounded image">
+            </div>
+        </div>
+        <div class="row">
+            <div class="center aligned column">
+                <a class="ui huge button">Check Them Out</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui fluid container" style="padding-top:50px;background:#393939">
+    <div class="ui container">
+        <div class="ui stackable four column grid">
+            <div class="column">
+                <div class="ui center aligned segment" style="border:0;box-shadow:0 0 0 0 !important; background:#ffffff00">
+                    <img class="ui small centered circular image" src="{% static './front_end/demo/static/custom/img/pecu.jpg' %}">
+                    <h3 style="color:#FBBD08 !important">Pecu</h3>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui center aligned segment" style="border:0;box-shadow:0 0 0 0 !important; background:#ffffff00">
+                    <img class="ui small centered circular image" src="{% static './front_end/demo/static/custom/img/crown.jpg' %}">
+                    <h3 style="color:#FBBD08 !important">Crown</h3>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui center aligned segment" style="border:0;box-shadow:0 0 0 0 !important; background:#ffffff00">
+                    <img class="ui small centered circular image" src="{% static './front_end/demo/static/custom/img/handsome.jpg' %}">
+                    <h3 style="color:#FBBD08 !important">Handsome</h3>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui center aligned segment" style="border:0;box-shadow:0 0 0 0 !important; background:#ffffff00">
+                    <img class="ui small centered circular image" src="{% static './front_end/demo/static/custom/img/jiyu.jpg' %}">
+                    <h3 style="color:#FBBD08 !important">JiYu</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

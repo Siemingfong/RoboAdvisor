@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Standard Meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>{% block title %}Robo-Advisor{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static './front_end/demo/static/favicon/favicon.png' %}" type="image/x-icon">
+    <!-- Semantic CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static './front_end/demo/static/semantic/css/icon.css'  %}">
+    <link rel="stylesheet" type="text/css" href="{% static './front_end/demo/static/semantic/css/semantic.css'  %}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static './front_end/demo/static/custom/css/base.css'  %}">
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
+    <!-- intercooler.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intercooler-js/1.2.0/intercooler.min.js"></script>
+    <!-- Semantic JS -->
+    <script src="{% static './front_end/demo/static/semantic/js/semantic.js'  %}"></script>
+    <script>
+        $(document)
+            .ready(function () {
+                // fix main menu to page on passing
+                $('.main.menu').visibility({
+                    type: 'fixed'
+                });
+                $('.overlay').visibility({
+                    type: 'fixed',
+                    offset: 80
+                });
+
+                // lazy load images
+                $('.image').visibility({
+                    type: 'image',
+                    transition: 'vertical flip in',
+                    duration: 500
+                });
+
+                // show dropdown on hover
+                $('.main.menu  .ui.dropdown').dropdown({
+                    on: 'hover'
+                });
+
+                // Menu Icon-text position
+                $(window).on('resize', function () {
+                    var win = $(this);
+                    if (win.width() < 766) {
+                        $('.mf-icontext').removeClass('center').removeClass('aligned');
+                    } else {
+                        $('.mf-icontext').addClass('center').addClass('aligned');
+                    }
+                });
+                $(window).scroll(function () {
+                    if ($(document).scrollTop() != 0) {
+                        $('#main-menu, .mf-title').addClass('menu-change');
+                    } else {
+                        $('#main-menu, .mf-title').removeClass('menu-change');
+                    }
+                });
+                $('#sidebar-action').click(function () {
+                    $('.ui.sidebar')
+                        .sidebar('toggle');
+                })
+            });
+    </script>
+
+    <style>
+        /* .sidebar>a.item>div {
+            color: aliceblue !important;
+        } */
+
+        .sidebar>a.item>div>i {
+            margin-right: 10px;
+        }
+
+        body.pushable,
+        body.pushable>.pusher {
+            background: #EEEEEE !important;
+        }
+
+        .mf-menu-list>a>i.icon {
+            margin-right: 0px !important;
+        }
+
+        .mf-icontext {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #main-menu {
+            margin: 0;
+        }
+    </style>
+    {% block HeadScript %}{% endblock %}
+</head>
+
+<body>
+    <div class="ui sidebar vertical menu">
+        <a class="active item">
+            <img style="height: 40px;display: inline-block;" src="{% static './front_end/demo/static/test/img/logo.png' %}"> Robo-Advisor</a>
+        <a class="item" href="../intro">
+            <div>
+                <i class="home icon"></i>Intro</div>
+        </a>
+        <a class="item" href="../textmining">
+            <div>
+                <i class="paragraph icon"></i>Sentiment Analysis</div>
+        </a>
+        <a class="item" href="../history">
+            <div>
+                <i class="line chart icon"></i>Bloomberg</div>
+        </a>
+        <a class="item" href="../trafficlight">
+            <div>
+                <i class="bitcoin icon"></i>Preditctors</div>
+        </a>
+    </div>
+    <div class="pusher">
+        <!-- Navbar menu -->
+        <div class="ui borderless main menu" id="main-menu">
+            <div class="ui text container mf-title">
+                <h2 class="ui center aligned icon header mf-icontext">
+                    Robo-Advisor
+                </h2>
+                <!-- if not loged in -->
+
+                <div class="ui item mf-menu-list">
+                    <a class="item" id="sidebar-action">
+                        <i class="sidebar icon"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- End Navbar menu -->
+        {% block BodyContent %}{% endblock %}
+
+    </div>
+</body>
+
+</html>

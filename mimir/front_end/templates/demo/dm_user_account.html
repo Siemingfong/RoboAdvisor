@@ -1,0 +1,34 @@
+{% extends 'base.html' %}{% load static %} {% block HeadScript %} {% endblock %} 
+{% block FB_T %} 
+
+$.post("/dm_user_account/", {
+    'fb_userID': fb_userID,
+    csrfmiddlewaretoken: '{{ csrf_token }}'
+}, function(data) {
+    console.log('Sent to dm_user_account!');
+    $('#dm_user_name').text(data.fb_user_name);
+    $('#dm_user_email').text(data.fb_user_email);
+})
+FB.api('/' + response.authResponse.userID + '?fields=picture.width(100).height(100)', function(response)
+{ console.log(response.picture.data.url); 
+    
+$('#dm_user_image').attr('src', response.picture.data.url); }) 
+
+{% endblock %} {% block BodyContent %}
+
+<!-- $('#dm_user_name').text(response.authResponse.userID); -->
+<div class="ui center aligned" style="height:500px;padding-top:70px;">
+    <div class="ui container">
+        <div class="ui stackable one column grid">
+            <div class="column">
+                <img class="ui small centered circular image" id="dm_user_image" src="">
+                <div class="ui center aligned text container">
+                    <h2 class="ui" id="dm_user_name"></h2>
+                    <h3 class="ui" id="dm_user_email"></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

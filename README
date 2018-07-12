@@ -1,0 +1,121 @@
+
+
+
+1. you must add some security and authentication and db settings by yourself in /mimi/mimir/settings.py
+2. you should import .json in / to your db(suggested MongoDB) or use /mimir/front_end/demo/Feb2018_version to do so 
+3. To call MongoClient, it is better to import /mimir/utils and use get_mongo_client with db setting
+written in /mimir/mimir/settings.py
+4. If you need  Google-OAuth2 features, you can connect bigmoumou.
+5. If you wish, you can reconstruct /mimir/api since it haven't been developed.
+
+
+
+
+
+
+
+
+directory tree
+
+
+for Yeh team data/
+└── mimir
+    ├── api
+    │   ├── account
+    │   │   └── migrations
+    │   ├── analyze
+    │   │   ├── migrations
+    │   │   └── __pycache__
+    │   ├── migrations
+    │   │   └── __pycache__
+    │   ├── preprocess
+    │   │   ├── jieba_data
+    │   │   ├── migrations
+    │   │   └── __pycache__
+    │   └── __pycache__
+    ├── front_end
+    │   ├── demo
+    │   │   ├── Feb2018_version
+    │   │   ├── migrations
+    │   │   ├── modules
+    │   │   │   └── __pycache__
+    │   │   └── __pycache__
+    │   ├── intro
+    │   │   ├── migrations
+    │   │   └── __pycache__
+    │   ├── me
+    │   │   ├── account
+    │   │   │   ├── migrations
+    │   │   │   └── __pycache__
+    │   │   ├── analyze
+    │   │   │   └── migrations
+    │   │   ├── exhibition
+    │   │   │   ├── migrations
+    │   │   │   └── __pycache__
+    │   │   ├── migrations
+    │   │   ├── preprocess
+    │   │   │   └── migrations
+    │   │   ├── __pycache__
+    │   │   └── upload
+    │   │       └── migrations
+    │   ├── migrations
+    │   │   └── __pycache__
+    │   ├── __pycache__
+    │   ├── static
+    │   │   └── front_end
+    │   │       ├── demo
+    │   │       │   └── static
+    │   │       │       ├── contentTools
+    │   │       │       │   └── images
+    │   │       │       ├── custom
+    │   │       │       │   ├── css
+    │   │       │       │   ├── img
+    │   │       │       │   └── js
+    │   │       │       ├── favicon
+    │   │       │       ├── semantic
+    │   │       │       │   ├── css
+    │   │       │       │   │   ├── assets
+    │   │       │       │   │   │   └── fonts
+    │   │       │       │   │   └── themes
+    │   │       │       │   │       ├── basic
+    │   │       │       │   │       │   └── assets
+    │   │       │       │   │       │       └── fonts
+    │   │       │       │   │       ├── default
+    │   │       │       │   │       │   └── assets
+    │   │       │       │   │       │       ├── fonts
+    │   │       │       │   │       │       └── images
+    │   │       │       │   │       ├── github
+    │   │       │       │   │       │   └── assets
+    │   │       │       │   │       │       └── fonts
+    │   │       │       │   │       └── material
+    │   │       │       │   │           └── assets
+    │   │       │       │   │               └── fonts
+    │   │       │       │   ├── images
+    │   │       │       │   │   ├── avatar
+    │   │       │       │   │   └── wireframe
+    │   │       │       │   └── js
+    │   │       │       └── test
+    │   │       │           └── img
+    │   │       ├── dist
+    │   │       │   ├── css
+    │   │       │   │   ├── alt
+    │   │       │   │   └── skins
+    │   │       │   ├── img
+    │   │       │   │   └── credit
+    │   │       │   └── js
+    │   │       │       └── pages
+    │   │       └── peculab
+    │   │           └── assets
+    │   │               ├── css
+    │   │               ├── img
+    │   │               │   ├── members
+    │   │               │   └── projects
+    │   │               └── js
+    │   └── templates
+    │       ├── demo
+    │       ├── intro
+    │       └── mimir
+    ├── mimir
+    │   └── __pycache__
+    └── utils
+        └── __pycache__
