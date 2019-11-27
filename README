@@ -21,15 +21,12 @@ pip3 install django-bower
 pip3 install utils
 pip3 install django
 pip3 install jieba
+npm install -g bower
+pip install mongo-datatables
 
-https://api.mongodb.com/python/current/
+python manage.py runserver localhost:8000
 
-running
-mongo
-cd /Users/siemingfong/Desktop/Work/20190409\ 台泥/Robo-Advisor/Tsai_team_data/mimir/Advisor/Tsai_team_data/mimir/  
-python3 manage.py runserver
-
-http://127.0.0.1:8000/mostfintech_demo/intro/
+http://localhost:8000/mostfintech_demo/trafficlight/
 
 
 
